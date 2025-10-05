@@ -54,15 +54,16 @@ def power_output_vectorized(ws: float,
     """
     #
     ws_array = np.asarray(ws)
+    ws_array_ramp = (ws_array >= cut_in_ws and ws_array < rated_ws)
 
     # interpolation method
     if interp_method not in ("linear", "cubic"): # the input check shall be in the main script, but just in case also here
         raise ValueError("interp_method must be 'linear' or 'cubic'")
     elif interp_method == "cubic":
-        g = ws_array**3/rated_ws**3
+        g = ws_array_ramp**3/rated_ws**3
     else:
         # default is linear interpolation
-        g = (ws_array - cut_in_ws) / (rated_ws - cut_in_ws)
+        g = (ws_array_ramp - cut_in_ws) / (rated_ws - cut_in_ws)
 
     return np.where((ws_array < cut_in_ws) | (ws_array >= cut_out_ws), 0.0, \
                      np.where(ws_array < rated_ws, g * rated_P, \
